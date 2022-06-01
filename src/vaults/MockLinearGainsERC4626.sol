@@ -1,27 +1,31 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity >=0.8.0;
 
-import {IMintable} from "./interfaces/IMintable.sol";
-import {BaseMockERC4626} from "./abstract/BaseMockERC4626.sol";
+import {IMintable} from "../interfaces/IMintable.sol";
+import {BaseMockERC4626} from "../abstract/BaseMockERC4626.sol";
 
 contract MockLinearGainsERC4626 is BaseMockERC4626 {
     uint256 internal _lastCompoundTimestamp;
     uint256 internal _totalAssets;
 
-    uint256 internal _gainsPerSecond;
+    uint256 internal gainsPerSecond;
 
     constructor(
         address _asset,
-        IMintable minter,
+        IMintable _minter,
         string memory _name,
         string memory _symbol,
         uint256 gainsPerSecond
     ) BaseMockERC4626(_asset, _minter, _name, _symbol) {
-        _gainsPerSecond = gainsPerSecond;
+        gainsPerSecond = gainsPerSecond;
     }
 
     function _unrealisedGains() internal view returns (uint256) {
-        return (block.timestamp - _lastCompoundTimestamp) * _gainsPerSecond;
+        return (block.timestamp - _lastCompoundTimestamp) * gainsPerSecond;
+    }
+
+    function setGainsPerSecond(uint256 _gainsPerSecond) external {
+        gainsPerSecond = _gainsPerSecond;
     }
 
     function totalAssets() public view virtual override returns (uint256) {
@@ -51,10 +55,11 @@ contract MockLinearGainsERC4626 is BaseMockERC4626 {
 
     function tick() public virtual override {
         uint256 _newAssets = _unrealisedGains();
+        if(_newAssets == 0) return;
 
         _totalAssets += _newAssets;
         _lastCompoundTimestamp = block.timestamp;
 
-        _minter.mintTo(address(this), _newAssets);
+        _minter.mint(address(this), _newAssets);
     }
 }
