@@ -55,11 +55,11 @@ contract MockLinearGainsERC4626 is BaseMockERC4626 {
 
     function tick() public virtual override {
         uint256 _newAssets = _unrealisedGains();
+        _lastCompoundTimestamp = block.timestamp;
+
         if(_newAssets == 0) return;
 
         _totalAssets += _newAssets;
-        _lastCompoundTimestamp = block.timestamp;
-
         _minter.mint(address(this), _newAssets);
     }
 }

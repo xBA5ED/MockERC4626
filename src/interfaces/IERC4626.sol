@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 // https://github.com/fubuloubu/ERC4626
-pragma solidity 0.8.6;
+pragma solidity >=0.8.0;
 
-interface IERC4626 {
+import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+
+interface IERC4626 is IERC20 {
     function asset() external view returns (address assetTokenAddress);
     function totalAssets() external view returns (uint256 totalManagedAssets);
     function convertToShares(uint256 assets) external view returns (uint256 shares);
