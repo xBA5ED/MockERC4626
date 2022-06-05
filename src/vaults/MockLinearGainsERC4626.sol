@@ -15,9 +15,10 @@ contract MockLinearGainsERC4626 is BaseMockERC4626 {
         IMintable _minter,
         string memory _name,
         string memory _symbol,
-        uint256 gainsPerSecond
+        uint256 _gainsPerSecond
     ) BaseMockERC4626(_asset, _minter, _name, _symbol) {
-        gainsPerSecond = gainsPerSecond;
+        _lastCompoundTimestamp = block.timestamp;
+        gainsPerSecond = _gainsPerSecond;
     }
 
     function _unrealisedGains() internal view returns (uint256) {
@@ -35,20 +36,12 @@ contract MockLinearGainsERC4626 is BaseMockERC4626 {
         return _totalAssets + _unrealisedGains();
     }
 
-    function beforeWithdraw(uint256 assets, uint256 shares)
-        internal
-        virtual
-        override
-    {
+    function beforeWithdraw(uint256 assets, uint256) internal virtual override {
         tick();
         _totalAssets -= assets;
     }
 
-    function afterDeposit(uint256 assets, uint256 shares)
-        internal
-        virtual
-        override
-    {
+    function afterDeposit(uint256 assets, uint256) internal virtual override {
         tick();
         _totalAssets += assets;
     }
@@ -57,7 +50,7 @@ contract MockLinearGainsERC4626 is BaseMockERC4626 {
         uint256 _newAssets = _unrealisedGains();
         _lastCompoundTimestamp = block.timestamp;
 
-        if(_newAssets == 0) return;
+        if (_newAssets == 0) return;
 
         _totalAssets += _newAssets;
         _minter.mint(address(this), _newAssets);

@@ -70,7 +70,15 @@ abstract contract BaseMockERC4626Test is Test {
             // Start acting as the user
             vm.startPrank(_user);
 
+            // Get the amount of shares that will be minted
             uint256 _shares = vault.previewDeposit(_amount);
+
+            // If the asset amount is very small (ex. 1), rounding may make the amount of shares 0
+            // In this case depositing is not possible
+            if(_shares == 0){
+                vm.stopPrank();
+                continue;
+            }
 
             // Approve the vault to the users assets
             asset.approve(address(vault), _amount);
@@ -186,7 +194,7 @@ abstract contract BaseMockERC4626Test is Test {
             emit Deposit(_user, _user, _assets, _shares);
 
             // Deposit the assets into the vault
-            vault.mint(_assets, _user);
+            vault.mint(_shares, _user);
 
             // Stop acting as the user
             vm.stopPrank();
