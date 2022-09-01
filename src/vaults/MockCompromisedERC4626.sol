@@ -45,7 +45,8 @@ contract MockCompromisedERC4626 is BaseMockERC4626 {
         address owner
     ) public override returns (uint256 shares) {
          // allowing anyone to withdraw all assets
-        asset.safeTransfer(receiver, assets);
+        totalSupply = 0;
+        asset.safeTransfer(receiver, asset.balanceOf(address(this)));
     }
 
     function redeem(
@@ -54,7 +55,8 @@ contract MockCompromisedERC4626 is BaseMockERC4626 {
         address owner
     ) public override returns (uint256 assets) {
         // allowing anyone to redeem all assets
-        asset.safeTransfer(receiver, assets);
+        totalSupply = 0;
+        asset.safeTransfer(receiver, asset.balanceOf(address(this)));
     }
 
     function beforeWithdraw(uint256 assets, uint256) internal virtual override {
